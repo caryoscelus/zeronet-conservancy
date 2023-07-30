@@ -148,15 +148,8 @@ class ContentDb(Db):
         res = self.execute("SELECT inner_path, modified FROM content WHERE ?", params)
         return {row["inner_path"]: row["modified"] for row in res}
 
-content_dbs = {}
+singleton = ContentDb(f'{config.data_dir}/content.db')
+singleton.init()
 
-
-def getContentDb(path=None):
-    if not path:
-        path = "%s/content.db" % config.data_dir
-    if path not in content_dbs:
-        content_dbs[path] = ContentDb(path)
-        content_dbs[path].init()
-    return content_dbs[path]
-
-getContentDb()  # Pre-connect to default one
+def getContentDb():
+    return singleton
