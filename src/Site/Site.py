@@ -758,6 +758,7 @@ class Site(object):
         return self.needFile(*args, **kwargs)
 
     def isFileDownloadAllowed(self, inner_path, file_info):
+        print(self, inner_path, file_info)
         # Verify space for all site
         if self.settings["size"] > self.getSizeLimit() * 1024 * 1024:
             return False

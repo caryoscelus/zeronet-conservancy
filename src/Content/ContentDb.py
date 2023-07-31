@@ -40,7 +40,7 @@ class ContentDb(Db):
     def getSchema(self):
         schema = {}
         schema["db_name"] = "ContentDb"
-        schema["version"] = 3
+        schema["version"] = 4
         schema["tables"] = {}
 
         if not self.getTableVersion("site"):
@@ -79,6 +79,18 @@ class ContentDb(Db):
             "schema_changed": 1
         }
 
+        schema['tables']['user'] = {
+            'cols': [
+                ['pubkey', 'TEXT PRIMARY KEY UNIQUE NOT NULL'],
+                ['site_id', 'INTEGER REFERENCES site (site_id)'],
+                ['size', 'INTEGER']
+            ],
+            'indexes': [
+                'CREATE UNIQUE INDEX user_pubkey ON user (pubkey)'
+            ],
+            'schema_changed': 1
+        }
+
         return schema
 
     def initSite(self, site):
@@ -87,6 +99,7 @@ class ContentDb(Db):
     def needSite(self, site):
         if site.address not in self.site_ids:
             self.execute("INSERT OR IGNORE INTO site ?", {"address": site.address})
+            self.execute('INSERT OR IGNORE INTO user ?', {'pubkey': site.address, 'site_id':})
             self.site_ids = {}
             for row in self.execute("SELECT * FROM site"):
                 self.site_ids[row["address"]] = row["site_id"]
@@ -138,6 +151,10 @@ class ContentDb(Db):
             row["size_optional"] = 0
 
         return row["size"], row["size_optional"]
+
+    def getUserContentSize(self, user):
+        res = self.execute('SELECT SUM(size+size_files+size_files_optional) FROM content WHERE inner_path LIKE "%?%"', user)
+        return res.fetchone()
 
     def listModified(self, site, after=None, before=None):
         params = {"site_id": self.site_ids.get(site.address, 0)}

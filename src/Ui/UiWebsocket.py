@@ -1199,6 +1199,13 @@ class UiWebsocket(object):
         self.response(to, "ok")
 
     @flag.admin
+    def actionUserStorageStats(self, to):
+        # resp = {}
+        # ....getUserContentSize()
+        # ......
+        self.response(to, resp)
+
+    @flag.admin
     @flag.no_multiuser
     def actionServerErrors(self, to):
         return config.error_logger.lines
