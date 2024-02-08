@@ -117,7 +117,7 @@ class UiRequest:
         if not s_address or not t_address:
             return False
         s_site = self.server.sites[s_address]
-        return f'Cors:{t_address}' in source_site.settings['permissions']
+        return f'Cors:{t_address}' in s_site.settings['permissions']
 
     def isCrossOriginRequest(self):
         """Prevent detecting sites on this 0net instance
